@@ -3,13 +3,16 @@ package com.sammy.minersdelight.content.loot;
 import com.google.common.base.*;
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.*;
+import io.github.fabricators_of_create.porting_lib.loot.IGlobalLootModifier;
+import io.github.fabricators_of_create.porting_lib.loot.LootModifier;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.util.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.predicates.*;
-import net.minecraftforge.common.loot.*;
-import net.minecraftforge.registries.*;
 
 import javax.annotation.*;
 
@@ -18,7 +21,7 @@ public class AddSeveralItemsModifier extends LootModifier
 	public static final Supplier<Codec<AddSeveralItemsModifier>> CODEC = Suppliers.memoize(() ->
 			RecordCodecBuilder.create(inst -> codecStart(inst).and(
 							inst.group(
-									ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter((m) -> m.addedItem),
+									BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter((m) -> m.addedItem),
 									Codec.INT.optionalFieldOf("min", 1).forGetter((m) -> m.min),
 									Codec.INT.optionalFieldOf("max", 1).forGetter((m) -> m.max)
 							)

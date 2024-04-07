@@ -5,6 +5,12 @@ import com.mojang.datafixers.util.Pair;
 import com.sammy.minersdelight.setup.MDBlocks;
 import com.sammy.minersdelight.setup.MDItems;
 import com.sammy.minersdelight.setup.MDMenuTypes;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerContainer;
+import io.github.fabricators_of_create.porting_lib.transfer.item.RecipeWrapper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlotItemHandler;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,16 +22,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 import vectorwing.farmersdelight.FarmersDelight;
 import vectorwing.farmersdelight.common.block.entity.container.CookingPotMealSlot;
 
 import java.util.Objects;
 
+@SuppressWarnings("deprecation")
 public class CopperPotMenu extends RecipeBookMenu<RecipeWrapper>
 {
 	//TODO: update this
@@ -65,7 +67,7 @@ public class CopperPotMenu extends RecipeBookMenu<RecipeWrapper>
 		// Cup Input
 		this.addSlot(new SlotItemHandler(inventory, 5, 83, 56)
 		{
-			@OnlyIn(Dist.CLIENT)
+			@Environment(EnvType.CLIENT)
 			public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
 				return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_CONTAINER_SLOT_CUP);
 			}
@@ -153,21 +155,21 @@ public class CopperPotMenu extends RecipeBookMenu<RecipeWrapper>
 		return itemstack;
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public int getCookProgressionScaled() {
 		int i = this.cookingPotData.get(0);
 		int j = this.cookingPotData.get(1);
 		return j != 0 && i != 0 ? i * 29 / j : 0;
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public boolean isHeated() {
 		return blockEntity.isHeated();
 	}
 
 	@Override
 	public void fillCraftSlotsStackedContents(StackedContents helper) {
-		for (int i = 0; i < inventory.getSlots(); i++) {
+		for (int i = 0; i < inventory.getSlotCount(); i++) {
 			helper.accountSimpleStack(inventory.getStackInSlot(i));
 		}
 	}

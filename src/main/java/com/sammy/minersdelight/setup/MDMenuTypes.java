@@ -2,28 +2,27 @@ package com.sammy.minersdelight.setup;
 
 import com.sammy.minersdelight.*;
 import com.sammy.minersdelight.content.block.copper_pot.*;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.*;
-import net.minecraftforge.common.extensions.*;
-import net.minecraftforge.eventbus.api.*;
-import net.minecraftforge.fml.common.*;
-import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.registries.*;
+
+import java.util.function.Supplier;
 
 public class MDMenuTypes {
 
 
-    public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MinersDelightMod.MODID);
+    public static final LazyRegistrar<MenuType<?>> MENU_TYPES = LazyRegistrar.create(Registries.MENU, MinersDelightMod.MODID);
 
-    public static final RegistryObject<MenuType<CopperPotMenu>> COPPER_POT = MENU_TYPES
-            .register("copper_pot", () -> IForgeMenuType.create(CopperPotMenu::new));
+    public static final Supplier<MenuType<CopperPotMenu>> COPPER_POT = MENU_TYPES
+            .register("copper_pot", () -> new ExtendedScreenHandlerType<>(CopperPotMenu::new));
 
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = MinersDelightMod.MODID)
     public static class ClientOnly {
 
-        @SubscribeEvent
-        public static void clientSetup(FMLClientSetupEvent event) {
-            event.enqueueWork(() -> MenuScreens.register(COPPER_POT.get(), CopperPotScreen::new));
+        public static void clientSetup() {
+            MenuScreens.register(COPPER_POT.get(), CopperPotScreen::new);
         }
+
     }
 }

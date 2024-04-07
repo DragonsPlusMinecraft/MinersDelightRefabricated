@@ -41,7 +41,7 @@ public class CopperPotRecipeBookComponent extends RecipeBookComponent
 		boolean cupServed = CupConversionReloadListener.BOWL_TO_CUP.containsKey(resultStack.getItem());
 		if (cupServed) {
 			Item cupItem = CupConversionReloadListener.BOWL_TO_CUP.get(resultStack.getItem());
-			ItemStack cupResultStack = new ItemStack(cupItem, Math.min(resultStack.getCount()*2, cupItem.getMaxStackSize(cupItem.getDefaultInstance())));
+			ItemStack cupResultStack = new ItemStack(cupItem, Math.min(resultStack.getCount()*2, cupItem.getMaxStackSize()));
 			cupResultStack.setTag(resultStack.getTag());
 			resultStack = cupResultStack;
 		}

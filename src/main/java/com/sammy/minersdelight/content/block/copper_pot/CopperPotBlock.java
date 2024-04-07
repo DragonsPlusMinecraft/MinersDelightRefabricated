@@ -1,6 +1,9 @@
 package com.sammy.minersdelight.content.block.copper_pot;
 
 import com.sammy.minersdelight.setup.*;
+import io.github.fabricators_of_create.porting_lib.util.NetworkHooks;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.*;
 import net.minecraft.core.*;
 import net.minecraft.nbt.*;
@@ -21,9 +24,6 @@ import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.material.*;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.*;
-import net.minecraftforge.api.distmarker.*;
-import net.minecraftforge.data.loading.*;
-import net.minecraftforge.network.*;
 import vectorwing.farmersdelight.common.block.state.*;
 import vectorwing.farmersdelight.common.registry.*;
 import vectorwing.farmersdelight.common.tag.*;
@@ -42,7 +42,7 @@ public class CopperPotBlock extends BaseEntityBlock implements SimpleWaterlogged
 	protected static final VoxelShape SHAPE_WITH_TRAY = Shapes.or(SHAPE, Block.box(0.0D, -1.0D, 0.0D, 16.0D, 0.0D, 16.0D));
 
 	public CopperPotBlock(BlockBehaviour.Properties properties) {
-		super(DatagenModLoader.isRunningDataGen() ? properties.noLootTable() : properties); //TODO: help);
+		super(properties);
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(SUPPORT, CookingPotSupport.NONE).setValue(WATERLOGGED, false));
 	}
 
@@ -151,7 +151,7 @@ public class CopperPotBlock extends BaseEntityBlock implements SimpleWaterlogged
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn) {
 		super.appendHoverText(stack, level, tooltip, flagIn);
 		CompoundTag nbt = stack.getTagElement("BlockEntityTag");
@@ -187,7 +187,7 @@ public class CopperPotBlock extends BaseEntityBlock implements SimpleWaterlogged
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource rand) {
 		BlockEntity tileEntity = level.getBlockEntity(pos);
 		if (tileEntity instanceof CopperPotBlockEntity copperPotEntity && copperPotEntity.isHeated()) {

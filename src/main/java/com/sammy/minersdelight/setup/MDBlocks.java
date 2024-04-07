@@ -9,6 +9,8 @@ import com.tterrag.registrate.builders.*;
 import com.tterrag.registrate.providers.loot.*;
 import com.tterrag.registrate.util.entry.*;
 import com.tterrag.registrate.util.nullness.*;
+import io.github.fabricators_of_create.porting_lib.models.generators.ConfiguredModel;
+import io.github.fabricators_of_create.porting_lib.models.generators.ModelFile;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.client.renderer.*;
 import net.minecraft.resources.*;
@@ -21,7 +23,6 @@ import net.minecraft.world.level.storage.loot.entries.*;
 import net.minecraft.world.level.storage.loot.functions.*;
 import net.minecraft.world.level.storage.loot.predicates.*;
 import net.minecraft.world.level.storage.loot.providers.number.*;
-import net.minecraftforge.client.model.generators.*;
 import vectorwing.farmersdelight.common.block.*;
 import vectorwing.farmersdelight.common.tag.*;
 

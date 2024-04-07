@@ -2,6 +2,7 @@ package com.sammy.minersdelight.content.loot;
 
 import com.google.common.collect.*;
 import com.google.gson.*;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.*;
 import net.minecraft.tags.*;
 import net.minecraft.util.*;
@@ -10,7 +11,6 @@ import net.minecraft.world.level.block.state.*;
 import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.parameters.*;
 import net.minecraft.world.level.storage.loot.predicates.*;
-import net.minecraftforge.registries.*;
 
 import java.util.*;
 
@@ -46,7 +46,7 @@ public class LootItemBlockTagCondition implements LootItemCondition {
 
       public LootItemBlockTagCondition deserialize(JsonObject p_81805_, JsonDeserializationContext p_81806_) {
          ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(p_81805_, "block_tag"));
-         return new LootItemBlockTagCondition(TagKey.create(ForgeRegistries.BLOCKS.getRegistryKey(), resourcelocation));
+         return new LootItemBlockTagCondition(TagKey.create(Registries.BLOCK, resourcelocation));
       }
    }
 }

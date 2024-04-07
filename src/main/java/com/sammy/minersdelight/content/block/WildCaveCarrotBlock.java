@@ -11,7 +11,6 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.*;
 import net.minecraft.world.level.block.state.properties.*;
-import net.minecraftforge.data.loading.*;
 import org.jetbrains.annotations.*;
 import vectorwing.farmersdelight.common.block.*;
 import vectorwing.farmersdelight.common.registry.*;
@@ -21,9 +20,7 @@ public class WildCaveCarrotBlock extends WildCropBlock {
     public static final BooleanProperty STONE = BooleanProperty.create("stone");
 
     public WildCaveCarrotBlock(Properties properties) {
-        super(MobEffects.DIG_SPEED, 10, DatagenModLoader.isRunningDataGen() ?
-                properties.noLootTable() :
-                properties.randomTicks()); //TODO: help
+        super(MobEffects.DIG_SPEED, 10, properties.randomTicks()); //TODO: help
         this.registerDefaultState(this.getStateDefinition().any().setValue(STONE, false));
     }
 
@@ -63,7 +60,7 @@ public class WildCaveCarrotBlock extends WildCropBlock {
     }
 
     @Override
-    protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
+    public boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
         return state.is(BlockTags.BASE_STONE_OVERWORLD) || state.is(BlockTags.DIRT) || state.is(BlockTags.SAND);
     }
 

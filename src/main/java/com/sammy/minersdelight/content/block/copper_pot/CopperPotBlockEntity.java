@@ -3,7 +3,13 @@ package com.sammy.minersdelight.content.block.copper_pot;
 import com.google.common.collect.*;
 import com.sammy.minersdelight.logic.*;
 import com.sammy.minersdelight.setup.*;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.RecipeWrapper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import it.unimi.dsi.fastutil.objects.*;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.*;
 import net.minecraft.nbt.*;
@@ -21,10 +27,7 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.*;
 import net.minecraft.world.phys.*;
-import net.minecraftforge.common.capabilities.*;
-import net.minecraftforge.common.util.*;
-import net.minecraftforge.items.*;
-import net.minecraftforge.items.wrapper.*;
+import org.jetbrains.annotations.NotNull;
 import vectorwing.farmersdelight.common.block.*;
 import vectorwing.farmersdelight.common.block.entity.*;
 import vectorwing.farmersdelight.common.crafting.*;
@@ -35,6 +38,7 @@ import vectorwing.farmersdelight.common.utility.ItemUtils;
 import javax.annotation.*;
 import java.util.*;
 
+@SuppressWarnings("deprecation")
 public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvider, HeatableBlockEntity, Nameable, RecipeHolder {
 	public static final int MEAL_DISPLAY_SLOT = 4;
 	public static final int CONTAINER_SLOT = 5;
@@ -42,8 +46,8 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 	public static final int INVENTORY_SIZE = OUTPUT_SLOT + 1;
 
 	private final ItemStackHandler inventory;
-	private final LazyOptional<IItemHandler> inputHandler;
-	private final LazyOptional<IItemHandler> outputHandler;
+	private final CopperPotItemHandler inputHandler;
+	private final CopperPotItemHandler outputHandler;
 
 	private int cookTime;
 	private int cookTimeTotal;
@@ -59,12 +63,16 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 	public CopperPotBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		this.inventory = createHandler();
-		this.inputHandler = LazyOptional.of(() -> new CopperPotItemHandler(inventory, Direction.UP));
-		this.outputHandler = LazyOptional.of(() -> new CopperPotItemHandler(inventory, Direction.DOWN));
+		this.inputHandler = new CopperPotItemHandler(inventory, Direction.UP);
+		this.outputHandler = new CopperPotItemHandler(inventory, Direction.DOWN);
 		this.mealContainerStack = ItemStack.EMPTY;
 		this.cookingPotData = createIntArray();
 		this.usedRecipeTracker = new Object2IntOpenHashMap<>();
 		this.checkNewRecipe = true;
+	}
+
+	public static void init() {
+		ItemStorage.SIDED.registerForBlockEntity(CopperPotBlockEntity::getStorage, MDBlockEntities.COPPER_POT.get());
 	}
 
 	public static ItemStack getMealFromItem(ItemStack cookingPotStack) {
@@ -268,7 +276,7 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 		if (!mealContainerStack.isEmpty()) {
 			return mealContainerStack;
 		} else {
-			return getMeal().getCraftingRemainingItem();
+			return getMeal().getRecipeRemainder();
 		}
 	}
 
@@ -284,7 +292,7 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 			ItemStack resultStack = recipe.getResultItem(level.registryAccess());
 			if (CupConversionReloadListener.BOWL_TO_CUP.containsKey(resultStack.getItem())) {
 				Item cupItem = CupConversionReloadListener.BOWL_TO_CUP.get(resultStack.getItem());
-				ItemStack cupResultStack = new ItemStack(cupItem, Math.min(resultStack.getCount()*2, cupItem.getMaxStackSize(cupItem.getDefaultInstance())));
+				ItemStack cupResultStack = new ItemStack(cupItem, Math.min(resultStack.getCount()*2, cupItem.getMaxStackSize()));
 				cupResultStack.setTag(resultStack.getTag());
 				resultStack = cupResultStack;
 			}
@@ -322,7 +330,7 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 		mealContainerStack = cupServed ? MDItems.COPPER_CUP.asStack() : recipe.getOutputContainer();
 		if (cupServed) {
 			Item cupItem = CupConversionReloadListener.BOWL_TO_CUP.get(resultStack.getItem());
-			ItemStack cupResultStack = new ItemStack(cupItem, Math.min(resultStack.getCount()*2, cupItem.getMaxStackSize(cupItem.getDefaultInstance())));
+			ItemStack cupResultStack = new ItemStack(cupItem, Math.min(resultStack.getCount()*2, cupItem.getMaxStackSize()));
 			cupResultStack.setTag(resultStack.getTag());
 			resultStack = cupResultStack;
 		}
@@ -336,12 +344,12 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 
 		for (int i = 0; i < MEAL_DISPLAY_SLOT; ++i) {
 			ItemStack slotStack = inventory.getStackInSlot(i);
-			if (slotStack.hasCraftingRemainingItem()) {
+			if (slotStack.getItem().hasCraftingRemainingItem()) {
 				Direction direction = getBlockState().getValue(CookingPotBlock.FACING).getCounterClockWise();
 				double x = worldPosition.getX() + 0.5 + (direction.getStepX() * 0.25);
 				double y = worldPosition.getY() + 0.7;
 				double z = worldPosition.getZ() + 0.5 + (direction.getStepZ() * 0.25);
-				ItemUtils.spawnItemEntity(level, inventory.getStackInSlot(i).getCraftingRemainingItem(), x, y, z,
+				ItemUtils.spawnItemEntity(level, inventory.getStackInSlot(i).getRecipeRemainder(), x, y, z,
 						direction.getStepX() * 0.08F, 0.25F, direction.getStepZ() * 0.08F);
 			}
 			if (!slotStack.isEmpty())
@@ -457,7 +465,7 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 	}
 
 	private boolean doesMealHaveContainer(ItemStack meal) {
-		return !mealContainerStack.isEmpty() || meal.hasCraftingRemainingItem();
+		return !mealContainerStack.isEmpty() || meal.getItem().hasCraftingRemainingItem();
 	}
 
 	public boolean isContainerValid(ItemStack containerItem) {
@@ -465,7 +473,7 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 		if (!mealContainerStack.isEmpty()) {
 			return ItemStack.isSameItem(mealContainerStack, containerItem);
 		} else {
-			return ItemStack.isSameItem(getMeal().getCraftingRemainingItem(), containerItem);
+			return ItemStack.isSameItem(getMeal().getRecipeRemainder(), containerItem);
 		}
 	}
 
@@ -494,24 +502,20 @@ public class CopperPotBlockEntity extends SyncedBlockEntity implements MenuProvi
 		return new CopperPotMenu(id, player, this, cookingPotData);
 	}
 
-	@Override
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
-		if (cap.equals(ForgeCapabilities.ITEM_HANDLER)) {
-			if (side == null || side.equals(Direction.UP)) {
-				return inputHandler.cast();
-			} else {
-				return outputHandler.cast();
-			}
+	@NotNull
+	public Storage<ItemVariant> getStorage(@org.jetbrains.annotations.Nullable Direction side) {
+		if (side == null || side.equals(Direction.UP)) {
+			return inputHandler;
+		} else {
+			return outputHandler;
 		}
-		return super.getCapability(cap, side);
 	}
 
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		inputHandler.invalidate();
-		outputHandler.invalidate();
+//		inputHandler.invalidate();
+//		outputHandler.invalidate();
 	}
 
 	@Override

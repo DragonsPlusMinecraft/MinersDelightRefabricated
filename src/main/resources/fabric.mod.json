@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "contributors": [
+    "${mod_credits}"
+  ],
+  "contact": {
+    "homepage": "${mod_homepage}",
+    "sources": "${mod_github}"
+  },
+  "license": "${mod_license}",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.sammy.minersdelight.MinersDelightMod"
+    ],
+    "client": [
+      "com.sammy.minersdelight.MinersDelightModClient"
+    ],
+    "jei_mod_plugin": [
+      "com.sammy.minersdelight.jei.JEIPlugin"
+    ],
+    "rei_client": [
+    ],
+    "emi": [
+    ]
+  },
+  "mixins": [
+    "${mod_id}.mixins.json"
+  ],
+  "accessWidener": "${mod_id}.accesswidener",
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=${minecraft_min_version} <${minecraft_max_version}"
+  }
+}

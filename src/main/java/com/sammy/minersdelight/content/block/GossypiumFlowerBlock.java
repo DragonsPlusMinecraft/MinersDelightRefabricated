@@ -14,12 +14,12 @@ import static com.sammy.minersdelight.content.block.WildCaveCarrotBlock.*;
 public class GossypiumFlowerBlock extends FlowerBlock {
 
     public GossypiumFlowerBlock(Properties properties) {
-        super(()->MobEffects.DIG_SPEED, 10, properties);
+        super(MobEffects.DIG_SPEED, 10, properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(STONE, false));
     }
 
     @Override
-    protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
+    public boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
         return state.is(BlockTags.BASE_STONE_OVERWORLD) || state.is(BlockTags.DIRT) || state.is(BlockTags.SAND);
     }
 

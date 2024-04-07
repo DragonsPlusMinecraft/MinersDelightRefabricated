@@ -1,25 +1,18 @@
 package com.sammy.minersdelight;
 
-import com.sammy.minersdelight.data.*;
+import com.sammy.minersdelight.content.block.copper_pot.CopperPotBlockEntity;
+import com.sammy.minersdelight.content.item.CopperCupItem;
 import com.sammy.minersdelight.setup.*;
-import com.tterrag.registrate.*;
-import com.tterrag.registrate.util.nullness.*;
-import net.minecraft.core.*;
-import net.minecraft.data.*;
-import net.minecraft.resources.*;
-import net.minecraftforge.common.*;
-import net.minecraftforge.common.data.*;
-import net.minecraftforge.data.event.*;
-import net.minecraftforge.eventbus.api.*;
-import net.minecraftforge.fml.common.*;
-import net.minecraftforge.fml.javafmlmod.*;
-import org.apache.logging.log4j.*;
+import com.tterrag.registrate.Registrate;
+import com.tterrag.registrate.util.nullness.NonNullSupplier;
+import net.fabricmc.api.ModInitializer;
+import net.minecraft.resources.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Random;
 
-@Mod(MinersDelightMod.MODID)
-public class MinersDelightMod {
+public class MinersDelightMod implements ModInitializer {
 	public static final Logger LOGGER = LogManager.getLogger();
 	public static final String MODID = "miners_delight";
 	public static final Random RANDOM = new Random();
@@ -29,42 +22,28 @@ public class MinersDelightMod {
 		return REGISTRATE.get();
 	}
 
-	public MinersDelightMod() {
-		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
-		MDLootModifiers.LOOT_MODIFIERS.register(modBus);
-		MDLootConditions.LOOT_CONDITIONS.register(modBus);
-		MDLootFunctions.LOOT_FUNCTIONS.register(modBus);
-		MDMenuTypes.MENU_TYPES.register(modBus);
-		MDCreativeTabs.CREATIVE_TABS.register(modBus);
-		MDPotions.POTIONS.register(modBus);
+	@Override
+	public void onInitialize() {
+		MDLootModifiers.LOOT_MODIFIERS.register();
+		MDLootConditions.LOOT_CONDITIONS.register();
+		MDLootFunctions.LOOT_FUNCTIONS.register();
+		MDMenuTypes.MENU_TYPES.register();
+		MDCreativeTabs.CREATIVE_TABS.register();
+		MDPotions.POTIONS.register();
 		MDBlocks.register();
 		MDItems.register();
 		MDBlockEntities.register();
 		MDWorldgen.register();
-		modBus.addListener(MDCauldronInteractions::addCauldronInteractions);
-		modBus.addListener(MDPotions::addPotionMixing);
-		modBus.addListener(MDComposting::addCompostValues);
-		modBus.addListener(DataOnly::gatherData);
+		REGISTRATE.get().register();
+		MDCauldronInteractions.addCauldronInteractions();
+		MDPotions.addPotionMixing();
+		MDComposting.addCompostValues();
+		CopperPotBlockEntity.init();
+		CopperCupItem.init();
 	}
 
 	public static ResourceLocation path(String path) {
 		return new ResourceLocation(MODID, path);
 	}
 
-	public static class DataOnly {
-		public static void gatherData(GatherDataEvent event) {
-			final DataGenerator generator = event.getGenerator();
-			final PackOutput packOutput = generator.getPackOutput();
-			CompletableFuture<HolderLookup.Provider> provider = event.getLookupProvider();
-			ExistingFileHelper helper = event.getExistingFileHelper();
-
-			MDBlockTags blockTagsProvider = new MDBlockTags(packOutput, provider, helper);
-
-			generator.addProvider(true, new MDLangMerger(packOutput));
-			generator.addProvider(true, new MDRecipeProvider(packOutput));
-			generator.addProvider(event.includeServer(), blockTagsProvider);
-			generator.addProvider(event.includeServer(), new MDItemTags(packOutput, provider, blockTagsProvider.contentsGetter(), helper));
-		}
-	}
 }

@@ -90,7 +90,7 @@ public class CopperPotCookingRecipeCategory implements IRecipeCategory<CookingPo
 		ItemStack mealContainerStack = cupServed ? MDItems.COPPER_CUP.asStack() : recipe.getOutputContainer();
 		if (cupServed) {
 			Item cupItem = CupConversionReloadListener.BOWL_TO_CUP.get(resultStack.getItem());
-			ItemStack cupResultStack = new ItemStack(cupItem, Math.min(resultStack.getCount()*2, cupItem.getMaxStackSize(cupItem.getDefaultInstance())));
+			ItemStack cupResultStack = new ItemStack(cupItem, Math.min(resultStack.getCount()*2, cupItem.getMaxStackSize()));
 			cupResultStack.setTag(resultStack.getTag());
 			resultStack = cupResultStack;
 		}

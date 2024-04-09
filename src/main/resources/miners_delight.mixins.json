@@ -2,7 +2,7 @@
   "required": true,
   "package": "com.sammy.minersdelight.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "miners_delight.refmap.json",
+  "refmap": "${archivesBaseName}-refmap.json",
   "mixins": [
     "FoodPropertiesMixin"
   ],

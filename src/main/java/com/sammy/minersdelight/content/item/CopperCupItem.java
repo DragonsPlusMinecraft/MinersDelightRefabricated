@@ -51,6 +51,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -76,10 +77,7 @@ public class CopperCupItem extends Item implements DispensibleContainerItem, Ite
     public CopperCupItem(Fluid pContent, Item.Properties pProperties) {
         super(pProperties);
         this.content = pContent;
-    }
-
-    public static void init() {
-        FluidStorage.ITEM.registerSelf(MDItems.COPPER_CUP, MDItems.WATER_CUP);
+        FluidStorage.ITEM.registerForItems(this, this);
     }
 
     @Override
@@ -111,7 +109,7 @@ public class CopperCupItem extends Item implements DispensibleContainerItem, Ite
         BlockState blockstate = pLevel.getBlockState(blockpos);
         if (pLevel.mayInteract(pPlayer, blockpos) && pPlayer.mayUseItemAt(blockpos1, direction, itemstack)) {
             var storage = FluidStorage.SIDED.find(pLevel, blockpos, direction.getOpposite());
-            if (FluidStorageUtil.interactWithFluidStorage(storage, pPlayer, pHand)) {
+            if (storage != null && FluidStorageUtil.interactWithFluidStorage(storage, pPlayer, pHand)) {
                 return InteractionResultHolder.sidedSuccess(pPlayer.getItemInHand(pHand), pLevel.isClientSide());
             } else if (this.content == Fluids.EMPTY) {
                 if (blockstate.getBlock() instanceof BucketPickup bucketpickup) {
@@ -201,9 +199,14 @@ public class CopperCupItem extends Item implements DispensibleContainerItem, Ite
         }
     }
 
+    //TODO: Not sure why PortingLib throws an exception when getting FluidType for vanilla fluids,
+    // considering other modded fluids may also throw that exception,
+    // a try-catch here should be a proper workaround? ;(
     protected void playEmptySound(@Nullable Player pPlayer, LevelAccessor pLevel, BlockPos pPos) {
-        SoundEvent soundevent = this.content.getFluidType().getSound(pPlayer, pLevel, pPos, SoundActions.BUCKET_EMPTY);
-        if (soundevent == null) {
+        SoundEvent soundevent;
+        try {
+            soundevent = Objects.requireNonNull(this.content.getFluidType().getSound(pPlayer, pLevel, pPos, SoundActions.BUCKET_EMPTY));
+        } catch (Exception ignored) {
             soundevent = this.content.is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
         }
         pLevel.playSound(pPlayer, pPos, soundevent, SoundSource.BLOCKS, 1.0F, 1.0F);

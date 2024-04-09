@@ -1,12 +1,10 @@
 package com.sammy.minersdelight.setup;
 
-import com.mojang.datafixers.util.*;
-import com.sammy.minersdelight.mixin.*;
-import net.minecraft.world.effect.*;
-import net.minecraft.world.food.*;
-import vectorwing.farmersdelight.common.registry.*;
-
-import java.util.function.*;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.food.FoodProperties;
+import vectorwing.farmersdelight.common.registry.ModEffects;
 
 public class MDFoodValues {
 
@@ -56,8 +54,8 @@ public class MDFoodValues {
 
     public static FoodProperties cupFoodProperties(FoodProperties foodProperties) {
         FoodProperties.Builder builder = new FoodProperties.Builder().nutrition((int) Math.floor(foodProperties.getNutrition()/2f)).saturationMod(foodProperties.getSaturationModifier()/2f);
-        for (Pair<Supplier<MobEffectInstance>, Float> pair : ((FoodPropertiesMixin) foodProperties).getEffectsRaw()) {
-            MobEffectInstance originalEffect = pair.getFirst().get();
+        for (Pair<MobEffectInstance, Float> pair : foodProperties.getEffects()) {
+            MobEffectInstance originalEffect = pair.getFirst();
             MobEffectInstance newEffect = new MobEffectInstance(originalEffect.getEffect(), (int) Math.floor(originalEffect.getDuration()/2f), (int) Math.floor(originalEffect.getAmplifier()/2f));
             builder.effect(newEffect, pair.getSecond());
         }

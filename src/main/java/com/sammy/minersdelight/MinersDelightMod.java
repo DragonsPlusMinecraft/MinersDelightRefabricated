@@ -1,7 +1,7 @@
 package com.sammy.minersdelight;
 
 import com.sammy.minersdelight.content.block.copper_pot.CopperPotBlockEntity;
-import com.sammy.minersdelight.content.item.CopperCupItem;
+import com.sammy.minersdelight.logic.CupConversionReloadListener;
 import com.sammy.minersdelight.setup.*;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
@@ -38,8 +38,8 @@ public class MinersDelightMod implements ModInitializer {
 		MDCauldronInteractions.addCauldronInteractions();
 		MDPotions.addPotionMixing();
 		MDComposting.addCompostValues();
+		CupConversionReloadListener.register();
 		CopperPotBlockEntity.init();
-		CopperCupItem.init();
 	}
 
 	public static ResourceLocation path(String path) {

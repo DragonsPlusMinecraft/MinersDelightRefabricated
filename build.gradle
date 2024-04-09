@@ -152,6 +152,9 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand replaceProperties + [project: project]
     }
+    filesMatching("${mod_id}.mixins.json") {
+        expand archivesBaseName: archivesBaseName
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
